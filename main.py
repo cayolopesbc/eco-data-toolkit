@@ -28,7 +28,9 @@ import shapely
 class SpatialDataset:
     
     def __init__(self, datapath):    
-        #Data Read:
+        '''
+        class constructor.
+        '''
         ds   = xr.open_dataset(datapath)
         self._data = ds.to_dataframe().reset_index() 
         if self._data.select_dtypes(include=[np.datetime64]).keys()[0]:
@@ -60,13 +62,24 @@ class SpatialDataset:
         return geom
         
     def var_choice(self, variables = []):
+        
+        '''
+        This method selects the data to be handled.
+         
+        input:
+            :param variables = shapefile
 
-        #Variables list and choice:
+        output:
+            return: variables dataset (pandas.GeoDataFrame instance)
+         
+        '''
+
         if not variables:            
             selected = []
             variables = np.array(self._data.columns)
             i = 1
-            print("The file have following variables:\n")
+            print("Choose the variables from the numbers.\n When finished the choice type 'q'.\n")
+            print("The file has the following variables:\n")
 
             for var in variables:
                 if var in ['latitude', 'longitude', 'lon', 'lat']:
@@ -75,9 +88,8 @@ class SpatialDataset:
                 else:    
                     print('{} - {}'.format(i,var))
                     i+=1          
-            print('{} - All variables'.format(i))
-            
-            print("Choose variables by number, when enough type 'q' and press enter:\n")
+            print('{} - All variables'.format(i))           
+    
             q = " "
             while q.upper() != "Q":
                 q = input("Variable code: ")       
@@ -100,9 +112,23 @@ class SpatialDataset:
         return
     
     def centroidFilter(self, mask_path, radius = 1):
+        
         '''
-        It extracts the data closest to the study area to decrease 
-        the amount of data and speed up processing:
+        This method extracts the data in a search radius defined  from the 'mask shapefile' centroid.
+         
+        input:
+            :param mask_path = shapefile
+            :param radius = limit radius to buffer in the centroid shapefile mask, 
+                            radius default value is equal = 1 degree
+        output:
+            return: filtered spatial dataset (pandas.GeoDataFrame instance)
+            
+        info:
+             - in some case the study area has a much smaller scale than the data 
+             used, so filtering it using only the points entered in a region can 
+             return null values.Therefore, this is an alternative method of spatial 
+             filtering.
+         
         '''
         try:
             mask_shape = gpd.GeoDataFrame.from_file(mask_path)
@@ -128,10 +154,20 @@ class SpatialDataset:
         return
         
     def pointFilter(self, Coord):
+        
         '''
-        Find the nearest grid point to specified coordinates 
+        This method find the nearest grid point to specified coordinates 
          and extract data.
+         
+        input:
+            :param Coord =  coordinates latitude/Longitude (can be set as a 
+                             list instance in [lat,Long] format or a 
+                             shapely.geometry.Point instance)
+        output:
+            return: filtered spatial dataset (pandas.GeoDataFrame instance)
+         
         '''
+        
         if isinstance(Coord,list):
             Point = shapely.geometry.Point(Coord[0], Coord[1])
         elif isinstance(Coord, shapely.geometry.Point):
@@ -152,7 +188,14 @@ class SpatialDataset:
      
     def temporalFilter(self, StartDate, EndDate):
         '''
-        Makes a temporal filter in dataset.
+       This method makes a temporal filter in dataset.
+        
+        input:
+            :param StarDate =  initial timestamp 
+            :param EndDate = end timestamp
+        output:
+            return: filtered temporal dataset (pandas.GeoDataFrame instance)
+        
         '''
         if isinstance(self._data.index,pd.DatetimeIndex):
             self._data = self._data[StartDate:EndDate]
@@ -161,6 +204,31 @@ class SpatialDataset:
         return 
 
     def resample(self, freq = '1H', method = 'ffill', order = 1):
+        '''
+        This method makes a temporal resample.
+        
+        input:
+            :param freq = resample frequencie, default frequencie is set as freq = '1H'
+            
+            :param method = resample method  (forwardfill, backfill, polynomial and spline methods is able),
+                            default method is set as 'fowardfill'
+                            
+            :param order = remsample method order (is used only in 'polynomial' and 'spline' methods)
+                            default order is set as order = 1
+        output:
+            return: filtered temporal dataset (pandas.GeoDataFrame instance)
+            
+        info:
+            resample case:
+            - in downscale resample,the outputsare defined by the period average
+            - in upscale resample, the outputs are defined using the chosen method
+        
+            resample methods:
+                - fowardfill/ ffill: propagate last valid observation forward to next valid.
+                - backfill / bfill: use next valid observation to fill gap.
+                - polynomial: fill data through polynomial interpolation
+        
+        '''
 
         #Converte GeoDataFrame em DataFrame para utilizar o metodo .resample():
         if isinstance(self._data, gpd.GeoDataFrame):    
