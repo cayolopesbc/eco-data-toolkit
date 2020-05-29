@@ -18,10 +18,10 @@ import numpy as np
 import pandas as pd
 import geopandas as gpd
 import datetime
-
+import shapely
 from shapely.geometry import Point, MultiPoint, mapping
 
-import shapely
+
 ################################################################################
 
 
@@ -67,8 +67,8 @@ class SpatialDataset:
                 self._data['latitude']  = self._data['lat']
             except KeyError:
                 geom = [Point(x,y) for x, y in zip(self._data['x'], self._data['y'])]
-                self._data['longitude'] = self._data['lon']
-                self._data['latitude']  = self._data['lat']
+                self._data['longitude'] = self._data['x']
+                self._data['latitude']  = self._data['y']
              
         return geom
         
@@ -151,14 +151,9 @@ class SpatialDataset:
         lat_filter_down = mask_shape.centroid.y + radius
         lon_filter_up   = mask_shape.centroid.x - radius
         lon_filter_down = mask_shape.centroid.x + radius
+
+        self._data = self._data[(lon_filter_down[0] >= self._data['longitude']) & (self._data['longitude'] >= lon_filter_up[0]) & (lat_filter_down[0] >= self._data['latitude']) & (self._data['latitude'] >= lat_filter_up[0])]
         
-        try:
-            self._data = self._data[(lon_filter_down[0] >= self._data['longitude']) & (self._data['longitude'] >= lon_filter_up[0]) & (lat_filter_down[0] >= self._data['latitude']) & (self._data['latitude'] >= lat_filter_up[0])]
-        except KeyError:
-            self._data = self._data[(lon_filter_down[0] >= self._data['lon']) & (self._data['lon'] >= lon_filter_up[0]) & (lat_filter_down[0] >= self._data['lat']) & (self._data['lat'] >= lat_filter_up[0])]
-            self._data['longitude'] = self._data['lon']
-            self._data['latitude'] = self._data['lat']
-            
         geom =  self._getgeom()
         crs = mask_shape.crs
         self._data = self._df2geodf(geom, crs)
@@ -265,11 +260,11 @@ class SpatialDataset:
         self._data = self._df2geodf(geom)
         return
     
-    def _maskCheck(self, shape, buffer_mask):
-        if not isinstance(mask_shp,gpd.GeoDataFrame):
-            mask_shp = gpd.GeoDataFrame.from_file(mask_shp)
-            mask_shp.geometry[0] = mask_shp.geometry[0].buffer(buffer_mask)
-        return mask_shp
+    def _maskCheck(self, mask_shape, buffer_mask):
+        if not isinstance(mask_shape,gpd.GeoDataFrame):
+            mask_shape = gpd.GeoDataFrame.from_file(mask_shape)
+            mask_shape.geometry[0] = mask_shape.geometry[0].buffer(buffer_mask)
+        return mask_shape
         
     def pts2csv(self, out_name):
         '''
@@ -278,7 +273,7 @@ class SpatialDataset:
         input:
             param: out_name = output file name.
         output:
-            return: a .csv file.
+            return: .csv file.
         
         info:
             This method can apply in cases where its wish to work with data at one point.
@@ -413,47 +408,6 @@ data = rasterio.open(rst)
 shapes = gpd.GeoDataFrame.from_file(shapes)
 
 shapes = shapes.to_crs(crs=data.crs.data)
-
-
-def pts2Raster(self, out_name, var_list = = None, outputBounds = None, outCRS = 'WGS84', buffer_mask = 0, shp_mask = None):
-    
-    if not var_list:
-        var_list = self._data.columns.drop(['latitude', 'longitude', 'geometry'], errors = 'ignore')
-            
-    if not outputBounds:
-        geom = self._data.geometry.drop_duplicates()
-        outputBounds = [x*1.02 for x in [geom.x.max(), geom.y.min(), geom.x.min(), geom.y.max()]]
-      
-    out_dir = '\\'.join(os.getcwd().split('\\')[:-1])
-    for varName in var_list:
-        vrt_fn = os.path.join(out_dir,varName+'Vrt.vrt')
-        lyr_name = varName
-        out_tif = os.path.join(out_name + '_'+ varName +'.tif')
-        tempPath = os.path.join(out_dir, varName +'.csv')
-        self._data[[varName,'latitude','longitude']].to_csv(tempPath,header = True, index = False)
-        
-        with open(vrt_fn, 'w') as fn_vrt:
-            fn_vrt.write('<OGRVRTDataSource>\n')
-            fn_vrt.write('\t<OGRVRTLayer name="%s">\n' % lyr_name)
-            fn_vrt.write('\t\t<SrcDataSource>%s</SrcDataSource>\n' % tempPath)
-            fn_vrt.write('\t\t<SrcLayer>%s</SrcLayer>\n' % lyr_name)
-            fn_vrt.write('\t\t<GeometryType>wkbPoint</GeometryType>\n')
-            fn_vrt.write('\t\t<GeometryField encoding="PointFromColumns" x="longitude" y="latitude" z="%s"/>\n'  %varName)
-            fn_vrt.write('\t</OGRVRTLayer>\n')
-            fn_vrt.write('</OGRVRTDataSource>\n')
-        
-        gridOp = gdal.GridOptions(format = 'Gtiff', outputBounds = outputBounds, algorithm = 'linear:radius=0.0:nodata = -9999', outputSRS = outCRS)
-        
-        if isinstance(shp_mask,gpd.GeoDataFrame):
-            temp_tif = out_name + '_' + varName +'.tif'
-            gdal.Grid(temp_tif, vrt_fn, options = gridOp)
-            cropRst(temp_tif, shp_mask, out_tif, remove = True, buffer_mask = buffer_mask)
-        else:
-            gdal.Grid(out_tif, vrt_fn, options = gridOp)
-        
-        os.remove(tempPath)
-        os.remove(vrt_fn)
-    return 
 
 
 ################################
