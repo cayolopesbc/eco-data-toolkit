@@ -1,2 +1,2 @@
-# ManageSpatialData
-Functions to manage spatial datasets for hydrology/limnology applications.
+# Eco-Data Manage Toolkit
+Python toolkit to manage datasets for hydrology/limnology applications.
