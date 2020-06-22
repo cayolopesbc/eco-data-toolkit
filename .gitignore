@@ -1,0 +1,8 @@
+*.ipynb_checkpoints/
+*.pyc
+.idea/
+venv/
+*.vscode/
+*.pypirc
+build/
+ecodatatk.egg-info/

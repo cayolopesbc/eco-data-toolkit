@@ -27,7 +27,7 @@ from shapely.geometry import Point, MultiPoint, mapping
 
 class SpatialDataset:
     
-    def __init__(self, datapath, crs ={'init': 'epsg:4326'} ):    
+    def __init__(self, datapath, geom_keys = None,crs ={'init': 'epsg:4326'} ):    
         '''
         class constructor
         '''
@@ -57,18 +57,24 @@ class SpatialDataset:
             self._crs = crs
         return gpd.GeoDataFrame(self._data, crs = self._crs, geometry = geom)
     
-    def _getgeom(self):        
-        try:
-            geom = [Point(x,y) for x, y in zip(self._data['longitude'], self._data['latitude'])]
-        except KeyError:
+    def _getgeom(self, geom_keys = None):
+        
+        if geom_keys:
+            geom = [Point(x,y) for x, y in zip(geom_keys[0], geom_keys[1])]
+            self._data['longitude'] = self._data[geom_keys[0]]
+            self._data['latitude']  = self._data[geom_keys[1]]
+        else:
             try:
-                geom = [Point(x,y) for x, y in zip(self._data['lon'], self._data['lat'])]
-                self._data['longitude'] = self._data['lon']
-                self._data['latitude']  = self._data['lat']
+                geom = [Point(x,y) for x, y in zip(self._data['longitude'], self._data['latitude'])]
             except KeyError:
-                geom = [Point(x,y) for x, y in zip(self._data['x'], self._data['y'])]
-                self._data['longitude'] = self._data['x']
-                self._data['latitude']  = self._data['y']
+                try:
+                    geom = [Point(x,y) for x, y in zip(self._data['lon'], self._data['lat'])]
+                    self._data['longitude'] = self._data['lon']
+                    self._data['latitude']  = self._data['lat']
+                except KeyError:
+                    geom = [Point(x,y) for x, y in zip(self._data['x'], self._data['y'])]
+                    self._data['longitude'] = self._data['x']
+                    self._data['latitude']  = self._data['y']
              
         return geom
         
