@@ -10,7 +10,7 @@ Eco-Data Manage Toolkit is a Python toolkit is a set of tools to facilitate data
 ## Installation
 To install lastest release version, use `pip install ecodatatk`.
 
-#### Microsoft Windows installation
+### Microsoft Windows installation
 If the GeoPandas package is not installed, it is suggested that it be installed manually using [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/download.html):
 
 `conda install -c conda-forge geopandas`
