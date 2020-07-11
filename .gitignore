@@ -6,3 +6,4 @@ venv/
 *.pypirc
 build/
 ecodatatk.egg-info/
+config codes.txt
