@@ -1,4 +1,4 @@
-## Eco-Data Manage Toolkit
+## Eco-Data Manage Toolkit  [![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.18914.svg)](https://zenodo.org/record/3941213#.XwtdeyhKhPY)
 Eco-Data Manage Toolkit is a Python toolkit is a set of tools to facilitate data management for hydrology/limnology applications.
 
  In this first version, it is only capable of reading data in NetCDF format. Its features include:
@@ -23,3 +23,6 @@ You can use the `help()` to get more information about the methods uses and para
 
 ## License
 [BSD 3-Clause License](LICENSE)
+
+## How to cite
+Cayo Lopes. (2020, July 12). cayolopesbc/eco-data-toolkit: First Version with DOI Register. (Version 0.0.1). Zenodo. http://doi.org/10.5281/zenodo.3941213
