@@ -11,10 +11,14 @@ Eco-Data Manage Toolkit is a Python toolkit is a set of tools to facilitate data
 To install lastest release version, use `pip install ecodatatk`.
 
 ### Microsoft Windows installation
-If the GeoPandas or/and Rasterio package is not installed, it is suggested that it be installed manually using [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/download.html):
+If the GeoPandas or/and Rasterio package is not installed, it is suggested that it be installed manually using [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/download.html).<br><br>
+Geopandas package install:<br>
+`conda install -c conda-forge geopandas` <br><br>
+Rasterio package install:<br>
+`conda install rasterio`<br><br>
 
-`conda install -c conda-forge geopandas` <br>
-`conda install rasterio`
+Then, the package can be installed without any error:<br>
+`pip install ecodatatk`
 
 ## Application Examples
 Applications can be found in Jupyter Notebooks, in the `./Examples` directory in this repository.
