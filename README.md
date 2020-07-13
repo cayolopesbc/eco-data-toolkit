@@ -29,4 +29,4 @@ You can use the `help()` to get more information about the methods uses and para
 [BSD 3-Clause License](LICENSE)
 
 ## How to cite
-Cayo Lopes. (2020, July 12). Eco-Data Manage Toolkit (v. 0.0.1) (Version 0.0.1). Zenodo. http://doi.org/10.5281/zenodo.3941213
+Cayo Lopes Bezerra Chalegre. (2020, July 12). Eco-Data Manage Toolkit (v. 0.0.1) (Version 0.0.1). Zenodo. http://doi.org/10.5281/zenodo.3941213
